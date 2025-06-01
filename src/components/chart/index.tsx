@@ -17,7 +17,7 @@ export default function ChartOverview() {
     { month: "Junho", desktop: 214, mobile: 140 },
   ]
    
-  const chartConfig = {
+  const chartConfig: ChartConfig = {
     desktop: {
       label: "Desktop",
       color: "#2563eb",
@@ -26,7 +26,7 @@ export default function ChartOverview() {
       label: "Mobile",
       color: "#60a5fa",
     },
-  } satisfies ChartConfig
+  }
 
   return(
     <Card className="w-full md:w-1/2 md:max-w-[600px]">
@@ -51,12 +51,7 @@ export default function ChartOverview() {
             <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4}/>
             <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4}/>
             <ChartTooltip 
-              content={<ChartTooltipContent />} 
-              contentStyle={{
-                backgroundColor: 'rgba(255, 255, 255, 0.473)',
-                border: 'none',
-                borderRadius: '4px'
-              }}
+              content={<ChartTooltipContent className="chart-tooltip" />} 
             />
             <ChartLegend content={<ChartLegendContent />} />
           </BarChart>

@@ -1,51 +1,66 @@
 import axios from 'axios';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
+interface SalesByMonth {
+  month: string;
+  value: number;
+}
+
+interface SalesByDevice {
+  device: string;
+  value: number;
+}
+
+interface DashboardData {
+  cards: {
+    totalSales: number;
+    newClients: number;
+    ordersToday: number;
+    totalOrders: number;
+  };
+  recentClients: Array<{
+    id: string;
+    name: string;
+    email: string;
+  }>;
+  charts: {
+    salesByMonth: SalesByMonth[];
+    salesByDevice: Record<string, SalesByDevice>;
+  };
+}
+
+interface ApiResponse {
+  data: DashboardData;
+}
 
 const api = axios.create({
   baseURL: API_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  timeout: 10000,
 });
 
-// Interceptor para adicionar token JWT
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token && config.headers) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-export const fetchDashboardData = async () => {
+export const fetchDashboardData = async (): Promise<ApiResponse> => {
   try {
-    const response = await api.get('/dashboard');
-    return response.data;
-  } catch (err) {
-    console.error('Erro ao buscar dados do dashboard:', err);
-    throw new Error('Erro ao buscar dados do dashboard');
+    const response = await api.get<{ data: ApiResponse }>('/api/dashboard');
+    const defaultData: DashboardData = {
+      cards: {
+        totalSales: 0,
+        newClients: 0,
+        ordersToday: 0,
+        totalOrders: 0
+      },
+      recentClients: [],
+      charts: {
+        salesByMonth: [],
+        salesByDevice: {}
+      }
+    };
+
+    return {
+      data: response.data.data?.data || defaultData
+    };
+  } catch (error) {
+    console.error('API Error:', error);
+    throw error;
   }
 };
-
-export const fetchRecentClients = async () => {
-  try {
-    const response = await api.get('/clients/recent');
-    return response.data;
-  } catch (err) {
-    console.error('Erro ao buscar clientes recentes:', err);
-    throw new Error('Erro ao buscar clientes recentes');
-  }
-};
-
-export const fetchSalesData = async () => {
-  try {
-    const response = await api.get('/sales/analytics');
-    return response.data;
-  } catch (err) {
-    console.error('Erro ao buscar dados de vendas:', err);
-    throw new Error('Erro ao buscar dados de vendas');
-  }
-};
-
-// Adicione outros métodos conforme necessário

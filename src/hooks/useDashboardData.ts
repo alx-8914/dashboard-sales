@@ -1,5 +1,12 @@
+'use client'
+
 import { useState, useEffect } from 'react';
 import { fetchDashboardData } from '../services/api';
+
+interface SalesByDevice {
+  device: string;
+  value: number;
+}
 
 interface DashboardData {
   cards: {
@@ -12,16 +19,13 @@ interface DashboardData {
     id: string;
     name: string;
     email: string;
-    createdAt: string;
   }>;
   charts: {
     salesByMonth: Array<{
       month: string;
       value: number;
     }>;
-    salesByDevice: {
-      [key: string]: number;
-    };
+    salesByDevice: Record<string, SalesByDevice>;
   };
 }
 
@@ -35,7 +39,7 @@ export function useDashboardData() {
       try {
         setLoading(true);
         const response = await fetchDashboardData();
-        setData(response as DashboardData);
+        setData(response.data);
         setError(null);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Erro ao carregar dados');
